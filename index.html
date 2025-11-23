@@ -5,24 +5,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Rank Your Favourite Chocolates</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-  h2 { margin-bottom: 15px; }
-  #chocolate-list { list-style: none; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8a5c2, #f78fb3, #fd79a8);
+    color: #2d3436;
+    box-shadow: 0 0 20px 3px #ff7675;
+    border-radius: 12px;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #d63031;
+  }
+  p {
+    text-align: center;
+    font-weight: bold;
+    color: #6c5ce7;
+  }
+  #chocolate-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+  }
   #chocolate-list li {
-    padding: 10px;
-    margin-bottom: 5px;
-    background: #f0f0f0;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: #ffeaa7;
     cursor: grab;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+    border-radius: 8px;
+    border: 2px solid #fab1a0;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   #chocolate-list li.dragging {
     opacity: 0.5;
   }
   button {
-    margin-top: 15px;
-    padding: 10px 25px;
+    display: block;
+    margin: 25px auto 0 auto;
+    padding: 12px 30px;
+    background-color: #6c5ce7;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #341f97;
+  }
+  #result {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00b894;
+  }
+  .points {
+    font-size: 0.85rem;
+    color: #636e72;
   }
 </style>
 </head>
@@ -30,32 +78,55 @@
 
 <h2>Rank Your Favourite Chocolates</h2>
 <p>Drag and drop the chocolates to rank them from your most to least favourite.</p>
-<ul id="chocolate-list">
-  <li draggable="true">Dairy Milk</li>
-  <li draggable="true">Choki Choki</li>
-  <li draggable="true">KitKat</li>
-  <li draggable="true">Perk</li>
-  <li draggable="true">Munch</li>
-  <li draggable="true">5 Star</li>
-  <li draggable="true">Milky Bar</li>
-  <li draggable="true">Lollipop</li>
-  <li draggable="true">Boomer</li>
-  <li draggable="true">Fuse</li>
-  <li draggable="true">Snickers</li>
-  <li draggable="true">Gems</li>
-  <li draggable="true">Bar One</li>
-  <li draggable="true">Ferrero Rocher</li>
-  <li draggable="true">Toblerone</li>
-  <li draggable="true">Cadbury Bournville</li>
-  <li draggable="true">Amul Dark</li>
-  <li draggable="true">Hershey's Kisses</li>
-</ul>
+<ul id="chocolate-list"></ul>
 
 <button onclick="submitRanking()">Submit Ranking</button>
 
+<div id="result"></div>
+
 <script>
+  // Chocolates with assigned points reflecting relative price/popularity (max 15)
+  const chocolates = [
+    { name: 'Ferrero Rocher', points: 15 },
+    { name: 'Toblerone', points: 14 },
+    { name: 'Cadbury Bournville', points: 13 },
+    { name: 'Amul Dark', points: 12 },
+    { name: 'Snickers', points: 11 },
+    { name: 'Dairy Milk', points: 10 },
+    { name: 'Bar One', points: 9 },
+    { name: 'KitKat', points: 8 },
+    { name: '5 Star', points: 7 },
+    { name: 'Munch', points: 6 },
+    { name: 'Perk', points: 5 },
+    { name: 'Choki Choki', points: 4 },
+    { name: 'Milky Bar', points: 4 },
+    { name: 'Fuse', points: 3 },
+    { name: 'Boomer', points: 2 },
+    { name: 'Gems', points: 1 },
+    { name: 'Lollipop', points: 1 },
+    { name: "Hershey's Kisses", points: 10 }
+  ];
+
   const list = document.getElementById('chocolate-list');
+  const resultDiv = document.getElementById('result');
   let dragSrcEl = null;
+
+  function createList() {
+    chocolates.forEach(choc => {
+      const li = document.createElement('li');
+      li.setAttribute('draggable', 'true');
+      li.textContent = choc.name;
+
+      const span = document.createElement('span');
+      span.className = 'points';
+      span.textContent = `Points: ${choc.points}`;
+      li.appendChild(span);
+
+      list.appendChild(li);
+    });
+  }
+
+  createList();
 
   function handleDragStart(e) {
     dragSrcEl = this;
@@ -65,26 +136,13 @@
   }
 
   function handleDragOver(e) {
-    if (e.preventDefault) {
-      e.preventDefault(); // Necessary to allow drop
-    }
+    if (e.preventDefault) e.preventDefault(); // Allow drop
     e.dataTransfer.dropEffect = 'move';
     return false;
   }
 
-  function handleDragEnter() {
-    this.classList.add('over');
-  }
-
-  function handleDragLeave() {
-    this.classList.remove('over');
-  }
-
   function handleDrop(e) {
-    if (e.stopPropagation) {
-      e.stopPropagation(); // stops the browser from redirecting.
-    }
-
+    if (e.stopPropagation) e.stopPropagation(); // Stops redirect
     if (dragSrcEl !== this) {
       dragSrcEl.innerHTML = this.innerHTML;
       this.innerHTML = e.dataTransfer.getData('text/html');
@@ -94,23 +152,46 @@
 
   function handleDragEnd() {
     [...list.querySelectorAll('li')].forEach(item => {
-      item.classList.remove('over', 'dragging');
+      item.classList.remove('dragging');
     });
   }
 
   [...list.querySelectorAll('li')].forEach(item => {
     item.addEventListener('dragstart', handleDragStart, false);
-    item.addEventListener('dragenter', handleDragEnter, false);
     item.addEventListener('dragover', handleDragOver, false);
-    item.addEventListener('dragleave', handleDragLeave, false);
     item.addEventListener('drop', handleDrop, false);
     item.addEventListener('dragend', handleDragEnd, false);
   });
 
   function submitRanking() {
-    const ranked = [...list.querySelectorAll('li')].map(li => li.textContent);
-    alert('Thanks! Your chocolate ranking is saved. Check console for details.');
-    console.log('Chocolate ranking:', ranked);
+    const rankedChocs = [...list.querySelectorAll('li')];
+    const rankedNames = rankedChocs.map(li => li.firstChild.textContent.trim());
+
+    // Calculate threshold: half chocolates' points sum * (half count)
+    const halfCount = Math.floor(chocolates.length / 2);
+    const topHalf = rankedNames.slice(0, halfCount); 
+    const pointsMap = new Map(chocolates.map(c => [c.name, c.points]));
+
+    const sumPointsHalf = Array.from(pointsMap.values())
+      .sort((a,b) => b-a)
+      .slice(0, halfCount)
+      .reduce((a,b) => a + b, 0);
+    const threshold = sumPointsHalf; // can adjust factor here if needed
+
+    // Sum points for top half selected chocolates
+    const scored = topHalf.reduce((sum, name) => sum + (pointsMap.get(name) || 0), 0);
+
+    if (scored >= threshold) {
+      resultDiv.textContent = "🎉 Congratulations! You are a TRUE Chocolate Lover! 🍫❤️";
+      resultDiv.style.color = '#d63031';
+    } else {
+      resultDiv.textContent = "Nice ranking! You might want to explore more chocolates! 😊";
+      resultDiv.style.color = '#0984e3';
+    }
+
+    console.log("Top half chocolates ranked:", topHalf);
+    console.log("Total points scored:", scored);
+    console.log("Points threshold:", threshold);
   }
 </script>
 
